@@ -1,11 +1,9 @@
-'use client'
-
-import { useProducts } from '@/hooks/useProducts'
+import ProductList from '@/components/features/products/ProductList'
 
 export default function ProductsPage() {
-  const { products, loading } = useProducts()
-
-  if (loading) return <div>Loading...</div>
-
-  return <div>Products</div>
+  return (
+    <section className="w-full bg-white">
+      <ProductList />
+    </section>
+  )
 }
