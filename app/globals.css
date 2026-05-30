@@ -3,17 +3,18 @@
 
 @theme inline {
   --font-sans: 'Pretendard', sans-serif;
-  --color-primary: #7F77DD;
-  --color-text-primary: #1C1E21;
-  --color-text-secondary: #979CA5;
-  --color-text-footer: #B2B6BD;
-  --color-border: #E9EAEC;
-  --color-banner-bg: #F2F5F8;
-  --color-section-bg: #FAFAFA;
+
+  --color-brand:  #7F77DD;
+  --color-ink:    #1C1E21;
+  --color-muted:  #979CA5;
+  --color-footer: #B2B6BD;
+  --color-line:   #E9EAEC;
+  --color-banner: #F2F5F8;
+  --color-wash:   #FAFAFA;
 }
 
 body {
   font-family: 'Pretendard', sans-serif;
-  color: #1C1E21;
+  color: var(--color-ink);
   background: #ffffff;
 }

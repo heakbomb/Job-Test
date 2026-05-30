@@ -7,7 +7,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="w-[250px] bg-white flex flex-col">
-      <div className="w-[250px] h-[320px] bg-[#E9EAEC]">
+      <div className="w-[250px] h-[320px] bg-line">
         {product.image_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -19,14 +19,14 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className="flex flex-col gap-[6px] pt-[12px]">
-        <span className="text-[16px] font-semibold text-[#979CA5]">
+        <span className="text-[16px] font-semibold text-muted">
           {product.type}
         </span>
-        <p className="text-[16px] font-semibold text-[#1C1E21] leading-snug">
+        <p className="text-[16px] font-semibold text-ink leading-snug">
           {product.title}
         </p>
         {product.price !== undefined && (
-          <p className="text-[14px] font-medium text-[#1C1E21]">
+          <p className="text-[14px] font-medium text-ink">
             {product.price.toLocaleString()}원
           </p>
         )}
