@@ -1,3 +1,10 @@
-export default function LoginPage() {
-  return <div>Login</div>
+import LoginForm from '@/components/features/auth/LoginForm'
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ registered?: string }>
+}) {
+  const { registered } = await searchParams
+  return <LoginForm registered={!!registered} />
 }

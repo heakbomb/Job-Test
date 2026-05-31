@@ -5,7 +5,7 @@ import { PRODUCT_FILTERS } from '@/constants'
 import ProductCard from './ProductCard'
 
 export default function ProductList() {
-  const { products, filter, setFilter, search, setSearch } = useProducts()
+  const { products, loading, filter, setFilter, search, setSearch } = useProducts()
 
   return (
     <div className="w-[1280px] mx-auto flex flex-col gap-[42px] py-[50px]">
@@ -47,15 +47,25 @@ export default function ProductList() {
 
       <div className="border-t border-line" />
 
-      <div className="flex flex-col gap-[30px]">
-        {[0, 1, 2].map((rowIdx) => (
-          <div key={rowIdx} className="flex gap-[26px]">
-            {products.slice(rowIdx * 4, rowIdx * 4 + 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-[80px]">
+          <span className="text-[16px] text-muted">불러오는 중...</span>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="flex items-center justify-center py-[80px]">
+          <span className="text-[16px] text-muted">상품이 없습니다.</span>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-[30px]">
+          {Array.from({ length: Math.ceil(products.length / 4) }, (_, rowIdx) => (
+            <div key={rowIdx} className="flex gap-[26px]">
+              {products.slice(rowIdx * 4, rowIdx * 4 + 4).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
