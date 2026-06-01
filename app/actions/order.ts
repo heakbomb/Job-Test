@@ -1,6 +1,7 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { salePrice } from '@/lib/utils'
 
 type OrderState = { error: string } | { orderId: string } | null
@@ -10,13 +11,40 @@ interface CartItemInput {
   quantity: number
 }
 
+// DB 전용 클라이언트 — 인증 쿠키를 읽지 않아 auth 상태 오염 없음
+async function createDbClient() {
+  const cookieStore = await cookies()
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => [],  // 쿠키를 읽지 않음 → 항상 anon key 사용
+        setAll: () => {},
+      },
+    }
+  )
+}
+
+// 인증 전용 클라이언트 — user_id 조회용
+async function createAuthClient() {
+  const cookieStore = await cookies()
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: () => {},
+      },
+    }
+  )
+}
+
 export async function createOrderAction(
   prevState: OrderState,
   formData: FormData
 ): Promise<OrderState> {
-  console.log('[order] action started')
-  const supabase = await createClient()
-
   const name = formData.get('name') as string
   const email = formData.get('email') as string
   const phone = formData.get('phone') as string
@@ -41,9 +69,11 @@ export async function createOrderAction(
 
   if (!items.length) return { error: '장바구니가 비어있습니다.' }
 
+  const db = await createDbClient()
+
   // DB에서 가격 재확인 (클라이언트 값 신뢰 안 함)
   const productIds = items.map((i) => i.productId)
-  const { data: products, error: productError } = await supabase
+  const { data: products, error: productError } = await db
     .from('products')
     .select('id, price, discount_rate, shipping_fee')
     .in('id', productIds)
@@ -67,11 +97,11 @@ export async function createOrderAction(
   )
   const totalAmount = subtotal + totalShipping
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // 인증 클라이언트로 user_id만 별도 조회
+  const authClient = await createAuthClient()
+  const { data: { user } } = await authClient.auth.getUser()
 
-  const { data: order, error: orderError } = await supabase
+  const { data: order, error: orderError } = await db
     .from('orders')
     .insert({
       user_id: user?.id ?? null,
@@ -93,11 +123,10 @@ export async function createOrderAction(
 
   if (orderError || !order) {
     console.error('[order] insert error:', JSON.stringify(orderError))
-    console.error('[order] key prefix:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(0, 20))
     return { error: '주문 생성에 실패했습니다.' }
   }
 
-  const { error: itemsError } = await supabase.from('order_items').insert(
+  const { error: itemsError } = await db.from('order_items').insert(
     items.map((item) => ({
       order_id: order.id,
       product_id: item.productId,
