@@ -68,13 +68,13 @@ export async function createOrderAction(
   const totalAmount = subtotal + totalShipping
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
-      user_id: session?.user?.id ?? null,
+      user_id: user?.id ?? null,
       email,
       name: name || null,
       phone: phone || null,
