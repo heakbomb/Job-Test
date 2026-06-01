@@ -11,17 +11,13 @@ interface CartItemInput {
   quantity: number
 }
 
-// DB 전용 클라이언트 — 인증 쿠키를 읽지 않아 auth 상태 오염 없음
+// DB 전용 클라이언트 — service_role key로 RLS 우회 (서버에서만 사용)
 async function createDbClient() {
-  const cookieStore = await cookies()
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
-      cookies: {
-        getAll: () => [],  // 쿠키를 읽지 않음 → 항상 anon key 사용
-        setAll: () => {},
-      },
+      cookies: { getAll: () => [], setAll: () => {} },
     }
   )
 }
