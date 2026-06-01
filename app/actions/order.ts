@@ -90,7 +90,11 @@ export async function createOrderAction(
     .select('id')
     .single()
 
-  if (orderError || !order) return { error: '주문 생성에 실패했습니다.' }
+  if (orderError || !order) {
+    console.error('[order] insert error:', JSON.stringify(orderError))
+    console.error('[order] key prefix:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(0, 20))
+    return { error: '주문 생성에 실패했습니다.' }
+  }
 
   const { error: itemsError } = await supabase.from('order_items').insert(
     items.map((item) => ({
