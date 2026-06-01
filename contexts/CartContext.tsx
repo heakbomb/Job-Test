@@ -2,15 +2,17 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { CartItem, Product } from '@/types'
+import { salePrice } from '@/lib/utils'
 
 interface CartContextType {
   items: CartItem[]
-  addItem: (product: Product) => void
+  addItem: (product: Product, quantity?: number) => void
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
   totalCount: number
   totalAmount: number
+  totalShipping: number
 }
 
 const CartContext = createContext<CartContextType | null>(null)
@@ -31,15 +33,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
   }, [items])
 
-  const addItem = (product: Product) => {
+  const addItem = (product: Product, quantity = 1) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id)
       if (existing) {
         return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.product.id === product.id
+            ? { ...i, quantity: i.quantity + quantity }
+            : i
         )
       }
-      return [...prev, { product, quantity: 1 }]
+      return [...prev, { product, quantity }]
     })
   }
 
@@ -60,14 +64,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = () => setItems([])
 
   const totalCount = items.reduce((sum, i) => sum + i.quantity, 0)
-  const totalAmount = items.reduce(
-    (sum, i) => sum + (i.product.price ?? 0) * i.quantity,
+
+  const totalAmount = items.reduce((sum, { product, quantity }) => {
+    const sp = salePrice(product.price ?? 0, product.discount_rate)
+    return sum + sp * quantity
+  }, 0)
+
+  const totalShipping = items.reduce(
+    (sum, { product }) => sum + (product.shipping_fee ?? 0),
     0
   )
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalCount, totalAmount }}
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalCount, totalAmount, totalShipping }}
     >
       {children}
     </CartContext.Provider>

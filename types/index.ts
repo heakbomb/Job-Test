@@ -5,6 +5,8 @@ export interface Product {
   title: string
   type: ProductType
   price?: number
+  discount_rate: number
+  shipping_fee?: number
   image_url?: string
 }
 
@@ -21,6 +23,13 @@ export interface Order {
   email: string
   phone?: string
   name?: string
+  recipient_name?: string
+  recipient_phone: string
+  zipcode?: string
+  address: string
+  address_detail?: string
+  payment_method: string
+  shipping_fee: number
   status: OrderStatus
   total_amount: number
   created_at: string

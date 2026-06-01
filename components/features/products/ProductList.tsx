@@ -56,9 +56,9 @@ export default function ProductList() {
           <span className="text-[16px] text-muted">상품이 없습니다.</span>
         </div>
       ) : (
-        <div className="flex flex-col gap-[30px]">
+        <div className="flex flex-col gap-[48px]">
           {Array.from({ length: Math.ceil(products.length / 4) }, (_, rowIdx) => (
-            <div key={rowIdx} className="flex gap-[26px]">
+            <div key={rowIdx} className="flex justify-center gap-[40px]">
               {products.slice(rowIdx * 4, rowIdx * 4 + 4).map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
