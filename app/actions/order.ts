@@ -14,6 +14,7 @@ export async function createOrderAction(
   prevState: OrderState,
   formData: FormData
 ): Promise<OrderState> {
+  console.log('[order] action started')
   const supabase = await createClient()
 
   const name = formData.get('name') as string
